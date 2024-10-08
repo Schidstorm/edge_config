@@ -1,0 +1,69 @@
+
+
+- name: find local template in role filter/*.conf
+  find:
+    paths: "{{ role_path }}/templates/filter"
+    patterns: "*.conf"
+  register: filter_templates
+  delegate_to: localhost
+
+- name: run template for each filter
+  set_fact:
+    templated_files: "{{ filter_templates.files | map(attribute='path') | map('basename') }}"
+  loop: "{{ filter_templates.files }}"
+  loop_control:
+    loop_var: filter_template
+    label: "{{ filter_template.path }}"
+    
+- name: sort files
+  set_fact:
+    templated_files: "{{ templated_files | sort }}"
+
+- name: lookup dns_lookups.v4
+  set_fact:
+    dns_lookups_v4: "{{ dns_lookups_v4 | default([]) + [{ 'key': item.key, 'value': lookup('community.general.dig', *item.value, qtype='A') | split(',') | unique | sort | join(', ') }] }}"
+  loop: "{{ dns_lookups.v4 | dict2items }}"
+
+- name: lookup dns_lookups.v6
+  set_fact:
+    dns_lookups_v6: "{{ dns_lookups_v6 | default([]) + [{ 'key': item.key, 'value': lookup('community.general.dig', *item.value, qtype='AAAA') | split(',') | unique | sort | join(', ') }] }}"
+  loop: "{{ dns_lookups.v6 | dict2items }}"
+
+- set_fact:
+    dns_lookups_v4: "{{ dns_lookups_v4 | items2dict }}"
+    dns_lookups_v6: "{{ dns_lookups_v6 | items2dict }}"
+
+- debug:
+    var: dns_lookups_v4
+
+- name: template nftables configuration
+  template:
+    src: nftables.conf
+    dest: /home/admin/nftables.conf
+    mode: 0644
+  register: nftables_conf
+
+- block:
+  - name: check nftables configuration
+    command: nft -f /home/admin/nftables.conf --check
+    vars:
+      ansible_become: yes
+      ansible_become_method: sudo
+      ansible_become_user: root
+    when: nftables_conf.changed
+  
+  - name: apply nftables configuration
+    command: nft -f /home/admin/nftables.conf
+    when: nftables_conf.changed
+
+  - name: Reset connection (for the case that the ssh connection is blocked)
+    meta: reset_connection
+  
+  - name: save nftables configuration
+    shell: 'nft list ruleset > /etc/nftables.conf'
+    when: nftables_conf.changed
+  vars:
+    ansible_become: yes
+    ansible_become_method: sudo
+    ansible_become_user: root
+  

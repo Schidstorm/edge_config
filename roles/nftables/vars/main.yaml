@@ -1,0 +1,11 @@
+dns_lookups:
+  v4:
+    APT_IPS_V4:
+      - security.debian.org
+      - help.ubuntu.com
+      - archive.ubuntu.com
+  v6:
+    APT_IPS_V6:
+      - security.debian.org
+      - help.ubuntu.com
+      - archive.ubuntu.com

@@ -1,0 +1,6 @@
+- name: configure edge
+  hosts: edge
+
+  roles:
+    - nftables
+    - haproxy

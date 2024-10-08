@@ -1,0 +1,11 @@
+- name: template haproxy
+  template:
+    src: haproxy.cfg
+    dest: /etc/haproxy/haproxy.cfg
+    mode: 0644
+  notify: restart haproxy
+  vars:
+    ansible_become: yes
+    ansible_become_method: sudo
+    ansible_become_user: root
+
