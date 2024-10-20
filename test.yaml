@@ -1,6 +1,0 @@
-- name: configure edge
-  hosts: edge
-  gather_facts: no
-
-  roles:
-    - initial
