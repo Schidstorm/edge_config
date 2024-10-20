@@ -1,11 +1,15 @@
 dns_lookups:
-  v4:
-    APT_IPS_V4:
-      - security.debian.org
-      - help.ubuntu.com
-      - archive.ubuntu.com
-  v6:
-    APT_IPS_V6:
-      - security.debian.org
-      - help.ubuntu.com
-      - archive.ubuntu.com
+  APT_IPS:
+    - security.debian.org
+    - help.ubuntu.com
+    - archive.ubuntu.com
+  ACME_SH_IPS:
+    - acme.zerossl.com
+    - api.zerossl.com
+    - api.godaddy.com
+
+    # for acme.sh dns-01 test
+    - cloudflare-dns.com
+    - dns.google
+    - doh.pub
+    - dns.alidns.com

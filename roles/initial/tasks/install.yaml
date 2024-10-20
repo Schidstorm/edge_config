@@ -1,0 +1,26 @@
+- name: update system
+  apt:
+    update_cache: yes
+    upgrade: dist
+- name: install basic packages
+  apt:
+    pkg:
+      - python3-pip
+      - python3-firewall
+
+- include_role:
+    name: users
+  vars:
+    users:
+      '{{ admin_user }}':
+        uid: '{{ admin_uid }}'
+        groups: []
+        password_secret_salt: '{{ admin_user_password_secret_salt }}'
+- include_role:
+    name: ssh-key
+- include_role:
+    name: sudoers
+- include_role:
+    name: network
+- include_role:
+    name: sshd

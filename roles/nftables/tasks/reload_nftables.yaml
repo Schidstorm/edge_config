@@ -1,0 +1,13 @@
+- name: reload nftables
+  block:
+    - name: check nftables configuration
+      command: nft -f /home/admin/nftables.conf --check
+    
+    - name: apply nftables configuration
+      command: nft -f /home/admin/nftables.conf
+
+    - name: Reset connection (for the case that the ssh connection is blocked)
+      meta: reset_connection
+    
+    - name: save nftables configuration
+      shell: 'nft list ruleset > /etc/nftables.conf'

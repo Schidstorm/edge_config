@@ -1,0 +1,50 @@
+- name: install wireguard
+  apt:
+    name: wireguard
+    state: present
+
+- name: check private key exists
+  shell: test -f /etc/wireguard/private.key
+  register: private_key_exists
+  failed_when: false
+  changed_when: false
+
+- name: generate private key
+  shell: wg genkey | tee /etc/wireguard/private.key
+  when: private_key_exists.rc != 0
+  register: private_key
+
+- name: generate public key
+  shell: cat /etc/wireguard/private.key | wg pubkey > /etc/wireguard/public.key
+  when: private_key.changed
+
+- name: set public key permission
+  file:
+    path: /etc/wireguard/public.key
+    mode: 0444
+
+- name: generate home.conf
+  template:
+    src: home.conf
+    dest: /etc/wireguard/home.conf
+  notify: restart wireguard
+
+- name: replace private key
+  shell: 'sed -i "s|PRIVATE_KEY|$(cat /etc/wireguard/private.key)|" /etc/wireguard/home.conf'
+
+- name: enable wireguard
+  systemd:
+    name: wg-quick@home
+    enabled: yes
+    state: started
+
+- name: install generate-qr.sh
+  template:
+    src: generate-qr.sh
+    dest: /usr/local/bin/generate-qr.sh
+    mode: 0755
+
+- name: install qrencode
+  apt:
+    name: qrencode
+    state: present

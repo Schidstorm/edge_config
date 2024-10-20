@@ -1,0 +1,17 @@
+Port {{ ssh_port }}
+
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+ChallengeResponseAuthentication no
+AllowAgentForwarding yes
+AllowTcpForwarding yes
+X11Forwarding no
+PrintMotd yes
+PrintLastLog yes
+TCPKeepAlive yes
+UseDNS no
+AllowUsers {{ admin_user }}
+PermitTunnel no
+Subsystem       sftp    /usr/lib/openssh/sftp-server

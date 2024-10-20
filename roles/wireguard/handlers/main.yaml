@@ -1,0 +1,4 @@
+- name: restart wireguard
+  service:
+    name: wg-quick@home
+    state: restarted

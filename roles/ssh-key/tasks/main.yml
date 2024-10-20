@@ -1,0 +1,40 @@
+- name: check parameters
+  assert:
+    that:
+      - public_keys is defined
+      - public_keys is not mapping
+      - public_keys is iterable
+      - public_keys is not string
+
+- name: check public_keys list
+  loop: '{{ public_keys }}'
+  assert:
+    that:
+      - item.user is defined
+      - item.public_key is defined
+      - item.public_key is string
+      - item.public_key | length > 0
+  
+
+- name: create .ssh directory
+  loop: '{{ public_keys }}'
+  file:
+    state: directory
+    path: '/home/{{ item.user }}/.ssh'
+    owner: '{{ item.user }}'
+    group: '{{ item.user }}'
+    mode: 0700
+
+
+- name: add public key to authorized_keys
+  loop: '{{ public_keys }}'
+  lineinfile:
+    line: '{{ item.public_key }}'
+    path: '/home/{{ item.user }}/.ssh/authorized_keys'
+    regexp: ' {{ item.public_key.split(" ")[2] }}$'
+    create: yes
+    mode: 0400
+    owner: '{{ item.user }}'
+    group: '{{ item.user }}'
+    
+    

@@ -1,0 +1,13 @@
+[Unit]
+Description=Renew Let's Encrypt certificates using acme.sh
+After=network-online.target
+
+[Service]
+Type=oneshot
+# --home's argument should be where the acme.sh script resides.
+ExecStart=/usr/local/bin/acme.sh --cron
+User=acme
+Group=haproxy
+# EnvironmentFile=/var/lib/acme/godaddy
+
+SuccessExitStatus=0 2

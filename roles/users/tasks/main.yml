@@ -1,0 +1,7 @@
+- name: add users
+  when: users is defined
+  include_role:
+    name: user
+  vars:
+    user: '{{ item }}'
+  loop: '{{ users | dict2items(key_name="name", value_name="options") }}'

@@ -1,0 +1,29 @@
+- name: replace sshd config
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+  register: sshd_config
+
+- name: create ssh socket override directory
+  file:
+    path: /etc/systemd/system/ssh.socket.d
+    state: directory
+
+- name: create ssh socket override
+  template:
+    src: ssh.socket.override.conf
+    dest: /etc/systemd/system/ssh.socket.d/override.conf
+  register: ssh_socket_override
+
+- name: restart ssh.socket
+  service:
+    name: ssh.socket
+    state: restarted
+    daemon_reload: yes
+  when: ssh_socket_override.changed
+
+- name: reload sshd
+  service:
+    name: ssh
+    state: restarted
+  when: sshd_config.changed or ssh_socket_override.changed

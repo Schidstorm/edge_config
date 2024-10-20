@@ -5,3 +5,19 @@
   become: yes
   become_method: sudo
   become_user: root
+
+- name: restart acme_letsencrypt_service
+  service:
+    name: acme_letsencrypt.service
+    state: restarted
+  become: yes
+  become_method: sudo
+  become_user: root
+
+- name: restart acme_letsencrypt_timer
+  service:
+    name: acme_letsencrypt.timer
+    state: restarted
+  become: yes
+  become_method: sudo
+  become_user: root

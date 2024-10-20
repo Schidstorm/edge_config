@@ -1,0 +1,11 @@
+- name: check parameters
+  assert:
+    that: 
+      - admin_user is string
+      - admin_user | length > 0
+
+- name: 'add {{admin_user}} to sudoers file'
+  lineinfile:
+    path: /etc/sudoers
+    line: "{{admin_user}}      ALL = NOPASSWD: ALL"
+    regexp: "^{{admin_user}} "

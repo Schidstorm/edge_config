@@ -1,0 +1,8 @@
+- name: set hostname
+  hostname:
+    name: '{{ hostname }}'
+
+- name: add host to hosts
+  lineinfile:
+    path: /etc/hosts
+    line: '127.0.1.1 {{ hostname }}'

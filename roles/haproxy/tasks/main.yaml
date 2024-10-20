@@ -1,11 +1,166 @@
-- name: template haproxy
-  template:
-    src: haproxy.cfg
-    dest: /etc/haproxy/haproxy.cfg
-    mode: 0644
+
+- block:  
+  - name: install packages
+    apt:
+      pkg:
+        - haproxy
+        - socat
+
+  - name: add acme user
+    user:
+      name: acme
+      group: haproxy
+      state: present
+      shell: /bin/false
+      home: /var/lib/acme
+      system: yes
+
+  - name: create acme directory
+    file:
+      path: /usr/local/share/acme.s
+      state: directory
+
+  - name: template haproxy
+    template:
+      src: haproxy.cfg
+      dest: /etc/haproxy/haproxy.cfg
+      mode: 0644
+    notify: restart haproxy
+  - name: template acme_letsencrypt.service
+    template:
+      src: acme_letsencrypt.service
+      dest: /etc/systemd/system/acme_letsencrypt.service
+      mode: 0644
+    notify: restart acme_letsencrypt_service
+  - name: template acme_letsencrypt.timer
+    template:
+      src: acme_letsencrypt.timer
+      dest: /etc/systemd/system/acme_letsencrypt.timer
+      mode: 0644
+    notify: restart acme_letsencrypt_timer
+
+  - name: enable acme_letsencrypt.timer
+    systemd:
+      name: acme_letsencrypt.timer
+      enabled: yes
+      state: started
+
+
+- name: check if acme.sh is installed
+  command: acme.sh --version
+  register: acme_sh_installed
+  failed_when: false
+  changed_when: false
+
+- name: install acme.sh
+  when: acme_sh_installed.rc != 0
+  block:
+    - name: remove local acme.sh
+      delegate_to: localhost
+      become: no
+      file:
+        path: /tmp/acme.sh
+        state: absent
+    - name: clone acme.sh locally
+      delegate_to: localhost
+      become: no
+      ansible.builtin.git:
+        repo: 'https://github.com/acmesh-official/acme.sh.git'
+        dest: /tmp/acme.sh
+    - name: delete .git directory
+      delegate_to: localhost
+      become: no
+      file:
+        path: /tmp/acme.sh/.git
+        state: absent
+    - name: zip acme.sh directory
+      delegate_to: localhost
+      become: no
+      command: tar -czf /tmp/acme.sh.tar.gz -C /tmp acme.sh
+
+    - name: extract acme.sh
+      command: tar -xzf /tmp/acme.sh.tar.gz -C /tmp
+      args:
+        creates: /tmp/acme.sh
+
+    - name: remove local acme.sh
+      delegate_to: localhost
+      become: no
+      file:
+        path: /tmp/acme.sh
+        state: absent
+
+    - name: create /usr/local/share/acme.sh
+      file:
+        path: /usr/local/share/acme.sh
+        state: directory
+        owner: acme
+        group: haproxy
+
+    - name: install acme.sh
+      become: yes
+      become_user: root
+      become_method: sudo
+      command: 
+        cmd: sudo -u acme bash ./acme.sh --install --no-cron --no-profile --home /usr/local/share/acme.sh
+        chdir: /tmp/acme.sh
+
+    - name: create lint to acme.sh
+      file:
+        src: /usr/local/share/acme.sh/acme.sh
+        dest: /usr/local/bin/acme.sh
+        state: link
+        mode: 0755
+
+- name: upgrade acme.sh
+  command: sudo -u acme acme.sh --upgrade
+
+- name: check if account is registered
+  shell: find /var/lib/acme/.acme.sh/ -name account.key | wc -l
+  register: acme_account_registered
+  failed_when: false
+  changed_when: false
+
+- name: register account
+  when: acme_account_registered.failed or acme_account_registered.stdout == "0"
+  command: sudo -u acme acme.sh --register-account --email "{{ acme_email }}"
+  register: acme_account_registered
+
+- debug:
+    var: acme_account_registered
+
+- name: create haproxy certs dir
+  file:
+    path: /etc/haproxy/certs
+    state: directory
+    owner: haproxy
+    group: haproxy
+    mode: 0770
+  register: haproxy_certs_dir
+
+- name: restart haproxy if certs dir created
+  shell: echo noop
+  changed_when: haproxy_certs_dir.changed
   notify: restart haproxy
-  vars:
-    ansible_become: yes
-    ansible_become_method: sudo
-    ansible_become_user: root
+
+- name: get registered domains
+  shell: "sudo -u acme acme.sh --list | awk '{ print $1 }' | tail -n +2"
+  register: acme_domains
+  changed_when: false
+
+- name: create domain if not exists
+  when: domain not in acme_domains.stdout
+  block:
+    - name: issue certificate
+      shell: sudo --preserve-env=GD_Key,GD_Secret -u acme acme.sh --issue --dns dns_gd -d {{ domain }} -d *.{{ domain }}
+      environment:
+        GD_Key: "{{ godaddy_api_key }}"
+        GD_Secret: "{{ godaddy_api_secret }}"
+    - name: install certificate
+      shell: sudo --preserve-env=DEPLOY_HAPROXY_HOT_UPDATE,DEPLOY_HAPROXY_STATS_SOCKET,DEPLOY_HAPROXY_PEM_PATH -u acme acme.sh --deploy -d {{ domain }} --deploy-hook haproxy
+      environment:
+        DEPLOY_HAPROXY_HOT_UPDATE: "yes"
+        DEPLOY_HAPROXY_STATS_SOCKET: "UNIX:/var/run/haproxy/admin.sock"
+        DEPLOY_HAPROXY_PEM_PATH: "/etc/haproxy/certs"
+
 

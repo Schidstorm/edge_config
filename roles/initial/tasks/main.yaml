@@ -1,0 +1,30 @@
+- vars:
+    ansible_user: "{{ initial_credentials.ansible_user }}"
+    ansible_ssh_pass: "{{ initial_credentials.ansible_ssh_pass }}"
+    ansible_port: "{{ initial_credentials.ansible_port }}"
+  block:
+    - name: ping
+      ping:
+      ignore_unreachable: yes
+      register: ping_result
+
+- name: make initial install
+  when: "'unreachable' not in ping_result or not ping_result.unreachable"
+  include_tasks: install.yaml
+  vars:
+    ansible_user: "{{ initial_credentials.ansible_user }}"
+    ansible_ssh_pass: "{{ initial_credentials.ansible_ssh_pass }}"
+    ansible_port: "{{ initial_credentials.ansible_port }}"
+
+- vars:
+    ansible_user: "{{ credentials.ansible_user }}"
+    ansible_port: "{{ credentials.ansible_port }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+  when: "'unreachable' in ping_result and ping_result.unreachable"
+  block:
+    - include_tasks: install.yaml
+    
+
+  
