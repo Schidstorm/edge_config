@@ -9,5 +9,10 @@
     - name: Reset connection (for the case that the ssh connection is blocked)
       meta: reset_connection
     
-    - name: save nftables configuration
-      shell: 'nft list ruleset > /etc/nftables.conf'
+    - name: apply nftables configuration
+      command: cp /home/admin/nftables.conf /etc/nftables.conf
+
+    - name: restart nftables
+      service:
+        name: nftables
+        state: restarted
