@@ -20,6 +20,23 @@
       path: /usr/local/share/acme.s
       state: directory
 
+  - name: create errors directory
+    file:
+      path: /etc/haproxy/errors
+      state: directory
+      owner: haproxy
+      group: haproxy
+      mode: 0755
+  - name: template error pages
+    template:
+      src: error_page.http
+      dest: /etc/haproxy/errors/{{ item.key }}.http
+      mode: 0400
+      owner: haproxy
+      group: haproxy
+    vars:
+      errorPage: "{{ item.value }}"
+    loop: "{{ errorPages | dict2items }}"
   - name: template haproxy
     template:
       src: haproxy.cfg

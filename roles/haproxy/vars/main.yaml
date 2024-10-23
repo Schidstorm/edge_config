@@ -1,0 +1,37 @@
+errorPages:
+  400:
+    title: We&#39;ve got some trouble | 400 - Bad Request
+    cover: <h1>Bad Request <small>400</small></h1><p class="lead">The server cannot process the request due to something that is perceived to be a client error.</p>
+    header: 400 Bad Request
+  401:
+    title:  We&#39;ve got some trouble | 401 - Unauthorized
+    cover: <h1>Unauthorized <small>401</small></h1><p class="lead">The requested resource requires an authentication.</p>
+    header: 401 Unauthorized
+  403:
+    title:  We&#39;ve got some trouble | 403 - Access Denied
+    cover: <h1>Access Denied <small>403</small></h1><p class="lead">The requested resource requires an authentication.</p>
+    header: 403 Access Denied
+  404:
+    title:  We&#39;ve got some trouble | 404 - Resource not found
+    cover: <h1>Resource not found <small>404</small></h1><p class="lead">The requested resource could not be found but may be available again in the future.</p>
+    header: 404 Resource not found
+  500:
+    title:  We&#39;ve got some trouble | 500 - Webservice currently unavailable
+    cover: <h1>Webservice currently unavailable <small>500</small></h1><p class="lead">An unexpected condition was encountered.<br />Our service team has been dispatched to bring it back online.</p>
+    header: 500 Webservice currently unavailable
+  501:
+    title:  We&#39;ve got some trouble | 501 - Not Implemented
+    cover: <h1>Not Implemented <small>501</small></h1><p class="lead">The Webserver cannot recognize the request method.</p>
+    header: 501 Not Implemented
+  502:
+    title:  We&#39;ve got some trouble | 502 - Webservice currently unavailable
+    cover: <h1>Webservice currently unavailable <small>502</small></h1><p class="lead">We&#39;ve got some trouble with our backend upstream cluster.<br />Our service team has been dispatched to bring it back online.</p>
+    header: 502 Webservice currently unavailable
+  503:
+    title:  We&#39;ve got some trouble | 503 - Webservice currently unavailable
+    cover: <h1>Webservice currently unavailable <small>503</small></h1><p class="lead">We&#39;ve got some trouble with our backend upstream cluster.<br />Our service team has been dispatched to bring it back online.</p>
+    header: 503 Webservice currently unavailable
+  504:
+    title:  We&#39;ve got some trouble | 504 - Webservice currently unavailable
+    cover: <h1>Webservice currently unavailable <small>502</small></h1><p class="lead">We&#39;ve got some trouble with our backend upstream cluster.<br />Our service team has been dispatched to bring it back online.</p>
+    header: 504 Webservice currently unavailable
