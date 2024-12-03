@@ -13,8 +13,8 @@ Address = $address/32
 
 [Peer]
 PublicKey = $(cat /etc/wireguard/public.key)
-AllowedIPs = {{ wireguard.address }}/32
-Endpoint = {{ ansible_default_ipv4.address }}:{{ wireguard_port }}
+AllowedIPs = {{ wireguard.peers[hostname].address }}/32
+Endpoint = {{ ansible_default_ipv4.address }}:{{ wireguard.port }}
 PersistentKeepalive = 30
 
 EOF

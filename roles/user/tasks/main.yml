@@ -22,7 +22,6 @@
   user:
     append: yes
     name: '{{ user.name }}'
-    uid: '{{ user.options.uid }}'
     groups: '{{ user.options.groups }}'
     password: "{{ lookup('password', '/dev/null chars=ascii_lowercase,digits length=32') | password_hash('sha512', user.options.password_secret_salt) }}"
     shell: "/bin/bash"

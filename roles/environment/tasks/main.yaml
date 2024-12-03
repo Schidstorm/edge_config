@@ -1,0 +1,5 @@
+- name: copy /etc/environment
+  copy:
+    src: environment
+    dest: /etc/environment
+    mode: 0644

@@ -13,7 +13,6 @@
   vars:
     users:
       '{{ admin_user }}':
-        uid: '{{ admin_uid }}'
         groups: []
         password_secret_salt: '{{ admin_user_password_secret_salt }}'
 - include_role:
@@ -22,5 +21,7 @@
     name: sudoers
 - include_role:
     name: network
+- include_role:
+    name: environment
 - include_role:
     name: sshd

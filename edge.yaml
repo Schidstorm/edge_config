@@ -1,9 +1,19 @@
-- name: configure edge
-  hosts: edge
+- name: configure liinux
+  hosts: linux
   gather_facts: no
-
   roles:
-    - initial
+    - linux
+
+- name: configure linux
+  hosts: linux
+  vars:
+    ansible_user: "{{ credentials.ansible_user }}"
+    ansible_port: "{{ credentials.ansible_port }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - wireguard
 
 - name: configure edge
   hosts: edge
@@ -14,6 +24,5 @@
   become_method: sudo
   become_user: root
   roles:
-    - wireguard
     - nftables
     - haproxy
