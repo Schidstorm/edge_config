@@ -1,3 +1,7 @@
 chain reverseproxy_output {
-    ip saddr { {{ nftables_defines.PEER_IP_EDGE }} } ip daddr { {{ wireguard.peers.wlan.address }} } tcp dport 35632 accept;
+    # Media
+    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.wlan.address }} } tcp dport 35632 accept;
+
+    # Scan IPP
+    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.scan.address }} } tcp dport 631 accept
 }

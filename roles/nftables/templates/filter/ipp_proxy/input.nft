@@ -1,9 +1,0 @@
-
-chain ipp_proxy_input {
-    # /run/systemd/resolve/resolv.conf
-    ip saddr {
-        {{ wireguard.peers.phone.address }}
-    } ip daddr { 
-        {{ nftables_defines.PEER_IP_EDGE }} 
-    } tcp dport { 631 } accept
-}

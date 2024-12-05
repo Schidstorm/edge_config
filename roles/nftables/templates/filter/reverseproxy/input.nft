@@ -1,10 +1,17 @@
 
 chain reverseproxy_input {
-    # /run/systemd/resolve/resolv.conf
+    # HTTP
     ip saddr {
         {{ wireguard.peers.phone.address }},
         {{ wireguard.peers.pc.address }}
     } ip daddr { 
-        {{ nftables_defines.PEER_IP_EDGE }} 
+        {{ wireguard.peers.edge.address }}
     } tcp dport { http, https } accept;
+
+    # IPP
+    ip saddr {
+        {{ wireguard.peers.phone.address }}
+    } ip daddr { 
+        {{ wireguard.peers.edge.address }}
+    } tcp dport { 631 } accept
 }
