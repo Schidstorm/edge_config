@@ -7,7 +7,7 @@ chain junk_input {
     ip saddr $BLACKLIST_IPS jump jump_reject
 
     # drop from private networks
-    ip saddr $PRIVATE_NETWORKS jump jump_reject
-    ip6 saddr fe80::/16 jump jump_reject
-    ip6 saddr 111::/16 jump jump_reject
+    iif $WAN_INTERFACE ip saddr $PRIVATE_NETWORKS jump jump_reject
+    iif $WAN_INTERFACE ip6 saddr fe80::/16 jump jump_reject
+    iif $WAN_INTERFACE ip6 saddr 111::/16 jump jump_reject
 }
