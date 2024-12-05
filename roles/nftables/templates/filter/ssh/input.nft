@@ -1,0 +1,4 @@
+
+chain ssh_input {
+    tcp dport $SSH_PORT accept;
+}

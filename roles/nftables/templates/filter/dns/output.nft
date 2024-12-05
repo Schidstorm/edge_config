@@ -1,5 +1,5 @@
 
-chain dns {
+chain dns_output {
     # /run/systemd/resolve/resolv.conf
     ip daddr { {{ nftables_defines.DNS_IPS_V4 | join(', ') }} } udp dport domain accept
     ip6 daddr { {{ nftables_defines.DNS_IPS_V6 | join(', ') }} } udp dport domain accept

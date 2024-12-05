@@ -7,7 +7,7 @@ define GITHUB_IPS_V6= {
 }
 
 
-chain acme_sh {
+chain acme_sh_output {
     ip daddr $ACME_SH_IPS_V4 tcp dport https accept;
     ip6 daddr $ACME_SH_IPS_V6 tcp dport https accept;
     # ip6 daddr $ACME_SH_IPS_V6 tcp dport https accept;

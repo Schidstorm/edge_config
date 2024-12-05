@@ -2,6 +2,7 @@
   block:
     - name: check nftables configuration
       command: nft -f /home/admin/nftables.conf --check
+      changed_when: false
     
     - name: apply nftables configuration
       command: nft -f /home/admin/nftables.conf

@@ -1,26 +1,5 @@
 
 
-- name: find local template in role filter/*.conf
-  find:
-    paths: "{{ role_path }}/templates/filter"
-    patterns: "*.conf"
-  register: filter_templates
-  delegate_to: localhost
-  become: false
-
-- name: run template for each filter
-  set_fact:
-    templated_files: "{{ filter_templates.files | map(attribute='path') | map('basename') }}"
-  loop: "{{ filter_templates.files }}"
-  loop_control:
-    loop_var: filter_template
-    label: "{{ filter_template.path }}"
-    
-- name: sort files
-  set_fact:
-    templated_files: "{{ templated_files | sort }}"
-
-
 ##### GITHUB IPS #####
 - name: get github meta ips
   set_fact:
@@ -35,13 +14,11 @@
       src: reload_domains.py
       dest: /usr/local/bin/reload_domains.py
       mode: 0755
-
   - name: upload reload tool config
     copy:
       content: "{{ dns_lookups | to_yaml }}"
       dest: /etc/reload_domains.yaml
       mode: 0644
-
   - name: setup cronjob
     cron:
       name: reload_domains
@@ -51,28 +28,62 @@
     file:
       path: /etc/nftables.d
       state: directory
+  - name: run reload tool diff
+    command: /usr/local/bin/reload_domains.py --diff
+    register: reload_domains_diff
+    changed_when: false
+    failed_when: reload_domains_diff.rc not in [0, 2]
   - name: run reload tool
     command: /usr/local/bin/reload_domains.py
-    register: reload_domains
-    changed_when: reload_domains.rc == 0
+    when: reload_domains_diff.rc == 2
 
-  - name: template nftables configuration
-    template:
-      src: nftables.conf
-      dest: /home/admin/nftables.conf
-      mode: 0644
-    register: nftables_config
+- name: template nftables
+  block:
+    - name: find filter files
+      find:
+        paths: "{{ role_path }}/templates/filter/{{ appName }}"
+        patterns: "*.nft"
+      delegate_to: localhost
+      connection: local
+      become: false
+      loop: "{{ nftables_apps }}"
+      loop_control:
+        loop_var: appName
+        label: "{{ appName }}"
+      register: filter_files
 
-- name: template settings.conf
-  template:
-    src: settings.conf
-    dest: /etc/nftables.d/settings.conf
-    mode: 0644
-  register: settings_config
+    - debug:
+        var: filter_files
+
+    - set_fact:
+        filter_structure: "{{ (filter_structure | default({})) | combine({ appName: filter_files.results[appNameIndex].files | map(attribute='path') | map('basename') | list }) }}"
+      loop: "{{ nftables_apps }}"
+      loop_control:
+        loop_var: appName
+        index_var: appNameIndex
+        label: "{{ appName }}"
+
+    - debug:
+        var: filter_structure
+
+    - name: template nftables configuration
+      template:
+        src: '{{ hostname }}-nftables.conf'
+        dest: /home/admin/nftables.conf
+        mode: 0644
+      register: nftables_config
+    - name: template toplevel configs
+      template:
+        src: "{{ item }}"
+        dest: "/etc/nftables.d/{{ item }}"
+        mode: 0644
+      loop:
+        - settings.nft
+        - blacklist.nft
+      register: settings_config
 
 - name: reload nftables
   include_tasks: reload_nftables.yaml
-  when: nftables_config.changed or settings_config.changed or true
 
 
   

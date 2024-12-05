@@ -4,6 +4,8 @@ import socket
 import yaml
 import os
 import typing
+import argparse
+import difflib
 
 # config = {
 #     "ACME_SH_IPS": [
@@ -41,7 +43,7 @@ def load_ips(domains, version):
 
 def serialize_nftables_define(name, ipHostnameTuple: typing.Set[typing.Tuple[str, str]]):
     # order ipHostnameTuple by ip
-    ipHostnameTuple = sorted(ipHostnameTuple, key=lambda x: x[0])
+    ipHostnameTuple = sorted(list(ipHostnameTuple), key=lambda x: x)
 
     nftables_define = f"define {name} = " + "{\n"
     ipLines = []
@@ -118,12 +120,34 @@ def reload_nftables():
     if check_nftables():
         os.system("nft -f /etc/nftables.conf")
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Reload nftables domains')
+    parser.add_argument('--diff', action='store_true', help='Output diff to stdout. exit with status code 2 if there are diffs and 0 if not.', default=False)
+    
+    return parser.parse_args()
+
 def main():
     configFile = os.getenv("CONFIG_FILE", "/etc/reload_domains.yaml")
     outputFile = os.getenv("OUTPUT_FILE", "/etc/nftables.d/reload_domains.nft")
     config = load_config(configFile)
     defines = load_defines(config)
     serialized = defines.serialize()
+
+    args = parse_args()
+
+    if args.diff:
+        currentSerialized = ""
+        if os.path.exists(outputFile):
+            with open(outputFile, "r") as f:
+                currentSerialized = f.read()
+        diff = difflib.unified_diff(currentSerialized.splitlines(), serialized.splitlines(), lineterm="")
+        diff = list(diff)
+
+        if len(diff) > 0:
+            print("\n".join(diff))
+            exit(2)
+        else:
+            exit(0)
 
     if os.path.exists(outputFile):
         with open(outputFile, "r") as f:
