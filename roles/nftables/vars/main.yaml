@@ -4,6 +4,8 @@ dns_lookups:
     - help.ubuntu.com
     - archive.ubuntu.com
     - changelogs.ubuntu.com
+    - archive.raspberrypi.com
+    - deb.debian.org
   ACME_SH_IPS:
     - acme.zerossl.com
     - api.zerossl.com
@@ -17,6 +19,3 @@ dns_lookups:
   GRAFANA_CLOUD_IPS:
     - src-ips.hosted-logs.grafana.net
     - src-ips.hosted-metrics.grafana.net
-
-  UBUNTU_NTP_IPS:
-    - ntp.ubuntu.com

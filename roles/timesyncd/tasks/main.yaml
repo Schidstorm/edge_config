@@ -1,0 +1,8 @@
+- name: template /etc/systemd/timesyncd.conf
+  template:
+    src: timesyncd.conf
+    dest: /etc/systemd/timesyncd.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart systemd-timesyncd.service

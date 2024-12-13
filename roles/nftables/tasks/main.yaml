@@ -1,11 +1,53 @@
 
+# - name: enable and start nftables
+#   service:
+#     name: nftables
+#     enabled: yes
+#     state: started
 
 ##### GITHUB IPS #####
 - name: get github meta ips
   set_fact:
     github_ips: "{{ lookup('ansible.builtin.url', 'https://api.github.com/meta', split_lines=False) | from_json }}"
 
+- name: template nftables
+  block:
+    - name: find filter files
+      find:
+        paths: "{{ role_path }}/templates/filter/{{ appName }}"
+        patterns: "*.nft"
+      delegate_to: localhost
+      connection: local
+      become: false
+      loop: "{{ nftables_apps }}"
+      loop_control:
+        loop_var: appName
+        label: "{{ appName }}"
+      register: filter_files
 
+    - set_fact:
+        filter_structure: "{{ (filter_structure | default({})) | combine({ appName: filter_files.results[appNameIndex].files | map(attribute='path') | map('basename') | list }) }}"
+      loop: "{{ nftables_apps }}"
+      loop_control:
+        loop_var: appName
+        index_var: appNameIndex
+        label: "{{ appName }}"
+
+    - name: template nftables configuration
+      template:
+        src: 'nftables.conf'
+        dest: /home/admin/nftables.conf
+        mode: 0644
+      register: nftables_config
+    - name: template toplevel configs
+      template:
+        src: "{{ item }}"
+        dest: "/etc/nftables.d/{{ item }}"
+        mode: 0644
+      loop:
+        - settings.nft
+        - blacklist.nft
+      register: settings_config
 
 ##### ip reload tool #####
 - block:
@@ -28,59 +70,20 @@
     file:
       path: /etc/nftables.d
       state: directory
-  - name: run reload tool diff
-    command: /usr/local/bin/reload_domains.py --diff
-    register: reload_domains_diff
-    changed_when: false
-    failed_when: reload_domains_diff.rc not in [0, 2]
-  - name: run reload tool
-    command: /usr/local/bin/reload_domains.py
-    when: reload_domains_diff.rc == 2
+  - name: install python3 yaml
+    package:
+      name: python3-yaml
+      state: present
+  # - name: run reload tool diff
+  #   command: /usr/local/bin/reload_domains.py --diff
+  #   register: reload_domains_diff
+  #   changed_when: false
+  #   failed_when: reload_domains_diff.rc not in [0, 2]
+  # - name: run reload tool
+  #   command: /usr/local/bin/reload_domains.py
+  #   when: reload_domains_diff.rc == 2
 
-- name: template nftables
-  block:
-    - name: find filter files
-      find:
-        paths: "{{ role_path }}/templates/filter/{{ appName }}"
-        patterns: "*.nft"
-      delegate_to: localhost
-      connection: local
-      become: false
-      loop: "{{ nftables_apps }}"
-      loop_control:
-        loop_var: appName
-        label: "{{ appName }}"
-      register: filter_files
 
-    - debug:
-        var: filter_files
-
-    - set_fact:
-        filter_structure: "{{ (filter_structure | default({})) | combine({ appName: filter_files.results[appNameIndex].files | map(attribute='path') | map('basename') | list }) }}"
-      loop: "{{ nftables_apps }}"
-      loop_control:
-        loop_var: appName
-        index_var: appNameIndex
-        label: "{{ appName }}"
-
-    - debug:
-        var: filter_structure
-
-    - name: template nftables configuration
-      template:
-        src: '{{ hostname }}-nftables.conf'
-        dest: /home/admin/nftables.conf
-        mode: 0644
-      register: nftables_config
-    - name: template toplevel configs
-      template:
-        src: "{{ item }}"
-        dest: "/etc/nftables.d/{{ item }}"
-        mode: 0644
-      loop:
-        - settings.nft
-        - blacklist.nft
-      register: settings_config
 
 - name: reload nftables
   include_tasks: reload_nftables.yaml

@@ -143,9 +143,6 @@
   command: sudo -u acme acme.sh --register-account --email "{{ acme_email }}"
   register: acme_account_registered
 
-- debug:
-    var: acme_account_registered
-
 - name: create haproxy certs dir
   file:
     path: /etc/haproxy/certs

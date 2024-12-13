@@ -25,3 +25,11 @@
     name: environment
 - include_role:
     name: sshd
+- include_role:
+    name: avahi
+
+- name: gather facts
+  gather_facts:
+  
+- include_role:
+    name: timesyncd

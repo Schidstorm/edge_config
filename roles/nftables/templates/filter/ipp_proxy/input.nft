@@ -1,0 +1,8 @@
+chain ipp_proxy_input {
+    # IPP
+    ip saddr {
+        {{ wireguard.peers.edge.address }}
+    } ip daddr { 
+        {{ wireguard.peers.scan.address }}
+    } tcp dport { 631 } accept
+}

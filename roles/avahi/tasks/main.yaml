@@ -1,0 +1,25 @@
+- name: check if avahi-daemon is installed
+  command: dpkg -l avahi-daemon
+  register: avahi_daemon_installed
+  changed_when: false
+  failed_when: false
+
+- set_fact:
+    avahi_enabled: "{{ avahi.enabled | default(false) }}"
+
+- name: disable avahi-daemon
+  block:
+    - name: stop avahi-daemon
+      service:
+        name: avahi-daemon
+        state: stopped
+    - name: disable avahi-daemon
+      service:
+        name: avahi-daemon
+        enabled: no
+    - name: mask avahi.socket
+      systemd:
+        name: avahi-daemon.socket
+        enabled: no
+        state: stopped
+  when: not avahi_enabled and avahi_daemon_installed.rc == 0

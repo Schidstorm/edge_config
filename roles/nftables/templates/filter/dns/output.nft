@@ -1,7 +1,11 @@
 
 chain dns_output {
-    # /run/systemd/resolve/resolv.conf
+    {% if nftables_defines.DNS_IPS_V4 %}
     ip daddr { {{ nftables_defines.DNS_IPS_V4 | join(', ') }} } udp dport domain accept
+    {% endif %}
+
+    {% if nftables_defines.DNS_IPS_V6 %}
     ip6 daddr { {{ nftables_defines.DNS_IPS_V6 | join(', ') }} } udp dport domain accept
+    {% endif %}
 
 }

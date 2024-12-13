@@ -1,5 +1,6 @@
 define WG_INTERFACE = "{{ wireguard.interface }}";
 define WAN_INTERFACE = "{{ ansible_default_ipv4.interface }}";
+define WAN_GATEWAY = "{{ ansible_default_ipv4.gateway }}";
 define SSH_PORT = {{ credentials.ansible_port }};
 define WG_PORT = {{ wireguard.port }};
 
