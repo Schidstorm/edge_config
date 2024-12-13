@@ -1,0 +1,83 @@
+linux:
+  hosts:
+    server1:
+      ansible_host: x.x.x.x
+      hostname: server1
+      wireguard_connections:
+        - outgoing: server3
+        - incoming: server2
+    # newHost:
+    #   initial_credentials:
+    #     ansible_user: root
+    #     ansible_ssh_pass: 'dasdasdasd'
+    #     ansible_port: 22
+    #   ansible_host: x.x.x.x
+    #   hostname: newHost
+        
+  vars:
+    admin_user: admin
+    admin_user_password_secret_salt: abababababababab
+    
+    credentials:
+      ansible_user: admin
+      ansible_port: 41232
+
+    public_keys:
+      - user: admin
+        public_key: 'asdasdasdasd'
+
+
+all:
+  vars:
+    wireguard:
+      address: y.y.y.y/y
+      port: 57354
+      interface: wg0
+      peers:
+        server1:
+          address: x.x.x.x
+          public_key: 'sdfsdfsdf'
+        server2:
+          address: x.x.x.x
+          public_key: 'sdfsdfsdf'
+        server3:
+          address: x.x.x.x
+          public_key: 'sdfsdfsdf'
+
+edge:
+  vars:
+    acme_email: 's@y.z'
+    domain: dexample.com
+    godaddy_api_key: 'asdasdasd'
+    godaddy_api_secret: 'gdgdfgdfg'
+    letsencrypt_account_thumbprint: 'Mfdgrtertert'
+
+  hosts:
+    server1:
+
+firewall:
+  hosts:
+    server1:
+      nftables_apps:
+        - junk
+        - apt
+        - acme_sh
+        - dns
+        - grafana
+        - ntp
+        - reverseproxy
+        - ssh
+        - wireguard
+      nftables_defines:
+        DNS_IPS_V4:
+          - 8.8.8.8
+        DNS_IPS_V6:
+          - ....
+      
+      
+      
+      
+      
+      
+      
+      
