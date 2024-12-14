@@ -19,3 +19,6 @@ dns_lookups:
   GRAFANA_CLOUD_IPS:
     - src-ips.hosted-logs.grafana.net
     - src-ips.hosted-metrics.grafana.net
+
+  UBUNTU_NTP_IPS:
+    - '{{ timeserver | default(ansible_default_ipv4.gateway) }}'

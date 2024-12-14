@@ -6,6 +6,7 @@ import os
 import typing
 import argparse
 import difflib
+import re
 
 # config = {
 #     "ACME_SH_IPS": [
@@ -26,12 +27,8 @@ def load_ips(domains, version):
 
     ipHostnameTuple = set()
     for domain in domains:
-        try:
-            addrResult = socket.getaddrinfo(domain, None, family)
-            for addr in addrResult:
-                ipHostnameTuple.add((addr[4][0], domain))
-        except socket.gaierror:
-            pass
+        for addr in resolve_ip(domain, family):
+            ipHostnameTuple.add((addr, domain))
 
     if len(ipHostnameTuple) == 0:
         # add localhost if no ip found because nf_tables does not allow empty sets
@@ -40,6 +37,38 @@ def load_ips(domains, version):
         else:
             ipHostnameTuple.add(("::1", "localhost"))
     return ipHostnameTuple
+
+def resolve_ip(hostname, version):
+    if looks_like_ip_v4(hostname):
+        if version == 4:
+            return [hostname]
+        else:
+            return []
+        
+    if looks_like_ip_v6(hostname):
+        if version == 6:
+            return [hostname]
+        else:
+            return []
+
+    ips = []
+    family = socket.AF_INET
+    if version == 6:
+        family = socket.AF_INET6
+
+    try:
+        addrResult = socket.getaddrinfo(hostname, None, family)
+        for addr in addrResult:
+            ips.append(addr[4][0])
+        return ips
+    except socket.gaierror:
+        return []
+
+def looks_like_ip_v4(ip):
+    return re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
+
+def looks_like_ip_v6(ip):
+    return ip.count(":") > 1
 
 def serialize_nftables_define(name, ipHostnameTuple: typing.Set[typing.Tuple[str, str]]):
     # order ipHostnameTuple by ip

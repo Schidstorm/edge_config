@@ -1,4 +1,4 @@
 chain ntp_output {
     # Allow NTP traffic to the NTP server
-    ip daddr $WAN_GATEWAY udp dport ntp accept;
+    ip daddr $UBUNTU_NTP_IPS_V4 udp dport ntp accept;
 }
