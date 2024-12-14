@@ -30,6 +30,6 @@
 
 - name: gather facts
   gather_facts:
-  
+
 - include_role:
-    name: timesyncd
+    name: time

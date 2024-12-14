@@ -27,7 +27,7 @@ def load_ips(domains, version):
 
     ipHostnameTuple = set()
     for domain in domains:
-        for addr in resolve_ip(domain, family):
+        for addr in resolve_ip(domain, version):
             ipHostnameTuple.add((addr, domain))
 
     if len(ipHostnameTuple) == 0:

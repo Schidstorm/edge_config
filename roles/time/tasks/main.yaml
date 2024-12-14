@@ -6,3 +6,8 @@
     group: root
     mode: 0644
   notify: restart systemd-timesyncd.service
+
+- name: set timezone
+  timezone:
+    name: 'Europe/Berlin'
+  notify: restart systemd-timesyncd.service
