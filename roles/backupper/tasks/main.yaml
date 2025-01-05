@@ -1,0 +1,66 @@
+- name: check if /etc/backupper/nas_credentials exists
+  stat:
+    path: /etc/backupper/nas_credentials
+  register: nas_credentials
+
+- name: fail if nas_credentials does not exist
+  fail:
+    msg: "/etc/backupper/nas_credentials does not exist"
+  when: not nas_credentials.stat.exists
+
+- name: check if /etc/backupper/restic_pw exists
+  stat:
+    path: /etc/backupper/restic_pw
+  register: restic_pw
+
+- name: fail if restic_pw does not exist
+  fail:
+    msg: "/etc/backupper/restic_pw does not exist"
+  when: not restic_pw.stat.exists
+
+- name: create backupper user
+  user:
+    name: backupper
+    shell: /bin/nologin
+    createhome: no
+    system: yes
+    state: present
+  register: backupper_user
+
+- name: create /mnt/backup
+  file:
+    path: /mnt/backup
+    state: directory
+
+- name: put line in fstab
+  lineinfile:
+    line: "//{{ nas_ip }}/backup /mnt/backup cifs rw,credentials=/etc/backupper/nas_credentials,uid={{ backupper_user.uid }},gid={{ backupper_user.group }},nofail 0 0"
+    path: /etc/fstab
+    regexp: "^//{{ nas_ip }} /mnt/backup "
+    state: present
+  notify: mount backup
+
+- name: configure udev rule
+  template:
+    src: 99-backup.rules
+    dest: /etc/udev/rules.d/99-backup.rules
+
+- name: copy backupper script
+  copy:
+    src: backup.sh
+    dest: /usr/local/bin/backup.sh
+    mode: 500
+    owner: backupper
+    group: backupper
+  notify: mount backup
+
+- name: configure cron job
+  cron:
+    name: backupper
+    job: "RESTIC_PASSWORD_FILE=/etc/backupper/restic_pw RESTIC_REPOSITORY=/media/admin/Backup/repos/main/ BACKUP_SOURCE=/mnt/backup /usr/local/bin/backup.sh"
+    user: backupper
+    minute: "0"
+    hour: "3"
+    day: "*"
+    month: "*"
+    weekday: "*"

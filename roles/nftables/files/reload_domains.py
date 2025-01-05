@@ -7,6 +7,8 @@ import typing
 import argparse
 import difflib
 import re
+from datetime import datetime
+import sys
 
 # config = {
 #     "ACME_SH_IPS": [
@@ -40,17 +42,20 @@ def load_ips(domains, version):
 
 def resolve_ip(hostname, version):
     if looks_like_ip_v4(hostname):
+        log(f"Looks like ip v4: {hostname}")
         if version == 4:
             return [hostname]
         else:
             return []
         
     if looks_like_ip_v6(hostname):
+        log(f"Looks like ip v6: {hostname}")
         if version == 6:
             return [hostname]
         else:
             return []
 
+    log(f"Resolving hostname: {hostname} with version: {version}")
     ips = []
     family = socket.AF_INET
     if version == 6:
@@ -61,7 +66,8 @@ def resolve_ip(hostname, version):
         for addr in addrResult:
             ips.append(addr[4][0])
         return ips
-    except socket.gaierror:
+    except socket.gaierror as e:
+        log(f"Failed to resolve hostname: {hostname} with error: {e}", "ERROR")
         return []
 
 def looks_like_ip_v4(ip):
@@ -115,6 +121,7 @@ class NftablesDefines:
         return not self.__eq__(value)
     
     def serialize(self):
+        log("Serializing nftables defines")
         keys = set(self.ipv4.keys()).union(set(self.ipv6.keys()))
         # sort keys
         keys = sorted(keys)
@@ -137,19 +144,23 @@ class NftablesDefines:
         return "\n".join(defines)   
 
 def load_defines(config):
+    log("Loading nftables defines")
     defines = NftablesDefines()
     for key, value in config.items():
         defines.add_domains(key, value)
     return defines
 
 def check_nftables():
+    log("Checking nftables configuration")
     return os.system("nft -f /etc/nftables.conf --check") == 0
 
 def reload_nftables():
     if check_nftables():
+        log("Reloading nftables")
         os.system("nft -f /etc/nftables.conf")
 
 def parse_args():
+    log("Parsing arguments")
     parser = argparse.ArgumentParser(description='Reload nftables domains')
     parser.add_argument('--diff', action='store_true', help='Output diff to stdout. exit with status code 2 if there are diffs and 0 if not.', default=False)
     
@@ -189,6 +200,11 @@ def main():
         f.write(serialized)
 
     reload_nftables()
+
+def log(msg, level="INFO"):
+    time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # log to stderr
+    print(f"{time} [{level}] {msg}", file=sys.stderr)
 
 if __name__ == "__main__":
     main()

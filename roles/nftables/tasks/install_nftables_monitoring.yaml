@@ -1,0 +1,32 @@
+# - name: install rustup
+#   shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+#   args:
+#     creates: /home/admin/.cargo/bin/cargo
+
+# - name: sync files/nft_logger dir. ignoring target
+#   synchronize:
+#     src: files/nft_logger
+#     dest: /home/admin/nft_logger
+#     use_ssh_args: yes
+#     delete: yes
+#     dest_port: '{{ ansible_ssh_port }}'
+#     recursive: yes
+#     rsync_opts:
+#       - "--exclude=.git"
+#       - "--exclude=target"
+#   register: nft_logger_sync
+
+# - name: install libnetfilter-queue-dev
+#   become: yes
+#   package:
+#     name: libnetfilter-queue-dev
+#     state: present
+    
+
+# # - name: install nft_logger
+# #   shell: "{{rustup_location}} install --path ./nft_logger"
+# #   args:
+# #     chdir: /home/admin/nft_logger/
+# #   when: nft_logger_sync.changed
+
+  

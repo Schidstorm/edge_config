@@ -1,0 +1,9 @@
+# run udevadm info -a -p /sys/block/sda to get the attributes
+# UDISKS_FILESYSTEM_SHARED=1 => /media/*
+# UDISKS_FILESYSTEM_SHARED=0 => /media/$USER/*
+# simulate disconnect and connect without walking: sudo udisksctl unmount -b /dev/sda2 && sudo udisksctl mount -b /dev/sda2 && mount
+
+ATTRS{vendor}=="WDC WD60", ATTRS{model}=="03FFBX-68MU3N0  ", ENV{ID_FS_USAGE}=="filesystem|other|crypto", \
+    ENV{UDISKS_FILESYSTEM_SHARED}="1", \
+    ENV{UDISKS_MOUNT_OPTIONS_DEFAULTS}="uid={{ backupper_user.uid }},gid={{ backupper_user.group }},noexec,nodev,nosuid", \
+    ENV{UDISKS_MOUNT_OPTIONS_ALLOW}="uid={{ backupper_user.uid }},gid={{ backupper_user.group }},noexec,nodev,nosuid"

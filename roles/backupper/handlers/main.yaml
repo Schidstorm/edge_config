@@ -1,0 +1,2 @@
+- name: mount backup
+  shell: mount -a

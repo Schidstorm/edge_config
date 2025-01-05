@@ -1,6 +1,8 @@
-
+define GRAFANA_CLOUD_IPS_V4= {
+    {{ grafana_logs_ips }},
+    {{ grafana_metrics_ips }}
+}
 
 chain grafana_output {
     ip daddr $GRAFANA_CLOUD_IPS_V4 tcp dport { http, https } accept;
-    ip6 daddr $GRAFANA_CLOUD_IPS_V6 tcp dport { http, https } accept;
 }

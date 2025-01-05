@@ -1,0 +1,3 @@
+chain smb_output {
+    ip daddr { {{ nftables_defines.SMB_IPS_V4 | join(',') }} } tcp dport { 445 } accept;
+}

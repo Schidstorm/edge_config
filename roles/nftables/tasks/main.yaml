@@ -9,6 +9,8 @@
 - name: get github meta ips
   set_fact:
     github_ips: "{{ lookup('ansible.builtin.url', 'https://api.github.com/meta', split_lines=False) | from_json }}"
+    grafana_logs_ips: "{{ lookup('ansible.builtin.dig', 'src-ips.hosted-logs.grafana.net', 'A') }}"
+    grafana_metrics_ips: "{{ lookup('ansible.builtin.dig', 'src-ips.hosted-metrics.grafana.net', 'A') }}"
 
 - name: template nftables
   block:
@@ -56,6 +58,8 @@
       src: reload_domains.py
       dest: /usr/local/bin/reload_domains.py
       mode: 0755
+  - debug:
+      var: dns_lookups
   - name: upload reload tool config
     copy:
       content: "{{ dns_lookups | to_yaml }}"
@@ -65,7 +69,7 @@
     cron:
       name: reload_domains
       job: /usr/local/bin/reload_domains.py
-      minute: "*/5"
+      minute: "*"
   - name: create /etc/nftables.d directory
     file:
       path: /etc/nftables.d
@@ -74,19 +78,23 @@
     package:
       name: python3-yaml
       state: present
-  # - name: run reload tool diff
-  #   command: /usr/local/bin/reload_domains.py --diff
-  #   register: reload_domains_diff
-  #   changed_when: false
-  #   failed_when: reload_domains_diff.rc not in [0, 2]
-  # - name: run reload tool
-  #   command: /usr/local/bin/reload_domains.py
-  #   when: reload_domains_diff.rc == 2
+  - name: run reload tool diff
+    command: /usr/local/bin/reload_domains.py --diff
+    register: reload_domains_diff
+    changed_when: false
+    failed_when: reload_domains_diff.rc not in [0, 2]
+  - name: run reload tool
+    command: /usr/local/bin/reload_domains.py
+    when: reload_domains_diff.rc == 2
 
 
 
 - name: reload nftables
   include_tasks: reload_nftables.yaml
 
+- name: install nftable monitoring
+  include_tasks: install_nftables_monitoring.yaml
+  vars:
+    ansible_become: no
 
   

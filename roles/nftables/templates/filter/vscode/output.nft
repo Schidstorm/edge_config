@@ -1,0 +1,4 @@
+chain vscode_output {
+    ip daddr $VSCODE_IPS_V4 tcp dport { 443 } accept;
+    ip6 daddr $VSCODE_IPS_V6 tcp dport { 443 } accept;
+}

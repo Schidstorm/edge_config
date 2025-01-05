@@ -1,0 +1,4 @@
+chain rustup_output {
+    ip daddr $RUSTUP_IPS_V4 tcp dport { https } accept;
+    ip6 daddr $RUSTUP_IPS_V6 tcp dport { https } accept;
+}

@@ -1,3 +1,5 @@
+rustup_location: "~/.cargo/bin/cargo"
+
 dns_lookups:
   APT_IPS:
     - security.debian.org
@@ -16,9 +18,13 @@ dns_lookups:
     - dns.google
     - doh.pub
     - dns.alidns.com
-  GRAFANA_CLOUD_IPS:
-    - src-ips.hosted-logs.grafana.net
-    - src-ips.hosted-metrics.grafana.net
+  RUSTUP_IPS:
+    - static.rust-lang.org
+    - sh.rustup.rs
+    - crates.io
+    - index.crates.io
+  VSCODE_IPS:
+    - github.com
 
   UBUNTU_NTP_IPS:
     - '{{ timeserver | default(ansible_default_ipv4.gateway) }}'
