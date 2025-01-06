@@ -57,7 +57,7 @@
 - name: configure cron job
   cron:
     name: backupper
-    job: "RESTIC_PASSWORD_FILE=/etc/backupper/restic_pw RESTIC_REPOSITORY=/media/admin/Backup/repos/main/ BACKUP_SOURCE=/mnt/backup /usr/local/bin/backup.sh"
+    job: "RESTIC_PASSWORD_FILE=/etc/backupper/restic_pw RESTIC_REPOSITORY=/media/Backup/repos/main/ BACKUP_SOURCE=/mnt/backup /usr/local/bin/backup.sh"
     user: backupper
     minute: "0"
     hour: "3"

@@ -31,7 +31,12 @@ main() {
         exit 1
     fi
 
-    restic backup  --dry-run $BACKUP_SOURCE 
+    echo "finding last snapshot id"
+    LAST_SNAPSHOT_ID=$(restic --cache-dir "/tmp/restic-cache" snapshots --tag media --latest 1 --json | jq -r '. | sort_by(.time) | last | .id')
+    echo "last snapshot id: $LAST_SNAPSHOT_ID"
+
+    echo "running backup"
+    restic backup --cache-dir "/tmp/restic-cache" --exclude '#recycle' --tag media --parent "$LAST_SNAPSHOT_ID" $BACKUP_SOURCE 
 }
 
 #Remove the lock directory
