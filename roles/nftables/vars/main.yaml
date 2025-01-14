@@ -25,6 +25,9 @@ dns_lookups:
     - index.crates.io
   VSCODE_IPS:
     - github.com
+  GOLANG_IPS:
+    - golang.org
+    - proxy.golang.org
 
   UBUNTU_NTP_IPS:
     - '{{ timeserver | default(ansible_default_ipv4.gateway) }}'
