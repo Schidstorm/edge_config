@@ -28,6 +28,9 @@ dns_lookups:
   GOLANG_IPS:
     - golang.org
     - proxy.golang.org
+    - storage.googleapis.com
+  OPENAI_IPS:
+    - api.openai.com
 
   UBUNTU_NTP_IPS:
     - '{{ timeserver | default(ansible_default_ipv4.gateway) }}'
