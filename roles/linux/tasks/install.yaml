@@ -27,6 +27,8 @@
     name: sshd
 - include_role:
     name: avahi
+- include_role:
+    name: systemd
 
 - name: gather facts
   gather_facts:
