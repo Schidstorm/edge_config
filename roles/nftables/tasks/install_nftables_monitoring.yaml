@@ -1,32 +1,43 @@
-# - name: install rustup
-#   shell: curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-#   args:
-#     creates: /home/admin/.cargo/bin/cargo
+- name: install packages
+  apt:
+    pkg:
+      - ulogd2
+      - ulogd2-json
 
-# - name: sync files/nft_logger dir. ignoring target
-#   synchronize:
-#     src: files/nft_logger
-#     dest: /home/admin/nft_logger
-#     use_ssh_args: yes
-#     delete: yes
-#     dest_port: '{{ ansible_ssh_port }}'
-#     recursive: yes
-#     rsync_opts:
-#       - "--exclude=.git"
-#       - "--exclude=target"
-#   register: nft_logger_sync
+- name: copy ulogd_udp_json_exporter
+  copy:
+    src: ulogd_udp_json_exporter_amd64
+    dest: /usr/local/bin/ulogd_udp_json_exporter
+    mode: 0755
+    owner: 65534
+    group: 65534
+  when: ansible_architecture == "x86_64"
+  notify: restart ulogd_udp_json_exporter
 
-# - name: install libnetfilter-queue-dev
-#   become: yes
-#   package:
-#     name: libnetfilter-queue-dev
-#     state: present
-    
+- name: copy ulogd_udp_json_exporter
+  copy:
+    src: ulogd_udp_json_exporter_arm64
+    dest: /usr/local/bin/ulogd_udp_json_exporter
+    mode: 0755
+    owner: 65534
+    group: 65534
+  when: ansible_architecture == "aarch64"
+  notify: restart ulogd_udp_json_exporter
 
-# # - name: install nft_logger
-# #   shell: "{{rustup_location}} install --path ./nft_logger"
-# #   args:
-# #     chdir: /home/admin/nft_logger/
-# #   when: nft_logger_sync.changed
+- name: copy ulogd_udp_json_exporter systemd service
+  template:
+    src: ulogd_udp_json_exporter.service
+    dest: /etc/systemd/system/ulogd_udp_json_exporter.service
+    mode: 0644
+    owner: root
+    group: root
+  notify: restart ulogd_udp_json_exporter
 
-  
+- name: copy ulogd2 config
+  template:
+    src: ulogd.conf
+    dest: /etc/ulogd.conf
+    mode: 0600
+    owner: root
+    group: root
+  notify: restart ulogd2

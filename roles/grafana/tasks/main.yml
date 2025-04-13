@@ -1,0 +1,3 @@
+- name: Install Grafana Alloy
+  ansible.builtin.include_role:
+    name: grafana.grafana.alloy

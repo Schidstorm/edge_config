@@ -1,0 +1,11 @@
+- name: restart ulogd2
+  systemd:
+    name: ulogd2
+    state: restarted
+    enabled: yes
+  
+- name: restart ulogd_udp_json_exporter
+  systemd:
+    name: ulogd_udp_json_exporter
+    state: restarted
+    enabled: yes

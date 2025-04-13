@@ -1,0 +1,8 @@
+src: ""
+dest: ""
+patterns: []
+exclude: []
+dirmode: 755
+filesmode: 644
+owner: root
+group: root

@@ -1,0 +1,14 @@
+- include_tasks:
+    file: "{{ role_path }}/../fasttemplate/tasks/main.yaml"
+  vars:
+    src: "{{ role_path }}/templates"
+    dest: "/home/admin/test"
+    patterns:
+      - "*"
+    exclude: []
+    dirmode: 755
+    filemode: 644
+    owner: admin
+    group: admin
+    a: a
+    b: b

@@ -1,22 +1,30 @@
 - name: try to ping with initial credentials
-  vars:
-    ansible_user: "{{ initial_credentials.ansible_user }}"
-    ansible_ssh_pass: "{{ initial_credentials.ansible_ssh_pass }}"
-    ansible_port: "{{ initial_credentials.ansible_port }}"
   when: 'initial_credentials is defined'
   block:
+    - set_fact:
+      args: "{{ initial_credentials }}"
     - name: ping
       ping:
       ignore_unreachable: yes
       register: ping_result
 
 - name: make initial install with initial credentials
-  when: "initial_credentials is defined and ('unreachable' not in ping_result or not ping_result.unreachable)"
-  include_tasks: install.yaml
-  vars:
-    ansible_user: "{{ initial_credentials.ansible_user }}"
-    ansible_ssh_pass: "{{ initial_credentials.ansible_ssh_pass }}"
-    ansible_port: "{{ initial_credentials.ansible_port }}"
+  when: "initial_credentials is defined and initial_credentials.ansible_user != 'root' and ('unreachable' not in ping_result or not ping_result.unreachable)"
+  become: yes
+  become_method: sudo
+  become_user: root
+  block:
+    - set_fact:
+      args: "{{ initial_credentials }}"
+    - include_tasks: install.yaml
+
+- name: make initial install with initial credentials
+  when: "initial_credentials is defined and initial_credentials.ansible_user == 'root' and ('unreachable' not in ping_result or not ping_result.unreachable)"
+  block:
+    - set_fact:
+      args: "{{ initial_credentials }}"
+    - include_tasks: install.yaml
+    
 
 - name: make initial install with new credentials
   vars:

@@ -1,0 +1,32 @@
+alloy_version: "latest"
+alloy_uninstall: false
+alloy_expose_port: false
+alloy_download_url_rpm: "https://github.com/grafana/alloy/releases/download/v{{ alloy_version }}/alloy-{{ alloy_version }}-1.{{ __alloy_arch }}.rpm"
+alloy_download_url_deb: "https://github.com/grafana/alloy/releases/download/v{{ alloy_version }}/alloy-{{ alloy_version }}-1.{{ __alloy_arch }}.deb"
+
+alloy_user_groups: []
+# alloy_user_groups:
+#   - "systemd-journal"
+
+alloy_env_file_vars:
+  CUSTOM_ARGS: "--stability.level=public-preview"
+# alloy_env_file_vars:
+#   CONFIG_FILE: "/custom/path"
+#   CUSTOM_ARGS: "--server.http.listen-addr=0.0.0.0:12345 --stability.level=public-preview --feature.community-components.enabled=true"
+
+alloy_systemd_override: |
+  [Service]
+  EnvironmentFile=/etc/default/alloy
+
+alloy_config: '{{ lookup("template", "config.alloy") }}'
+
+keep_metrics:
+  - ulogd_packets_total
+  - ulogd_packets_by_protocol_total
+  - ulogd_packets_by_interface_total
+  - ulogd_packets_by_dest_port_total
+  - ulogd_packets_by_src_ip_total
+  - ulogd_packet_size_bytes_bucket
+  - ulogd_packet_size_bytes_sum
+  - ulogd_packet_size_bytes_count
+  - ulogd_json_parse_errors_total

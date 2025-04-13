@@ -1,6 +1,5 @@
 chain reverseproxy_output {
-    # Media
-    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.wlan.address }} } tcp dport 35632 accept;
+    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.wlan.address }} } tcp dport {{ reverse_proxy_port }} accept;
 
     # Scan IPP
     ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.scan.address }} } tcp dport 631 accept

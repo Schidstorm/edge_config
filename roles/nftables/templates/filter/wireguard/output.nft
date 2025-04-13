@@ -1,0 +1,4 @@
+
+chain wireguard_output {
+    oif $WAN_INTERFACE udp dport $WG_PORT accept;
+}

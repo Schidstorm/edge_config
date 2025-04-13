@@ -1,0 +1,80 @@
+
+- name: Create temporary template directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: template
+  register: tempdir
+  delegate_to: localhost
+  connection: local
+  become: false
+  changed_when: false
+
+- name: find filter files
+  find:
+    paths: "{{ src }}"
+    patterns: "{{ patterns }}"
+    recurse: yes
+  delegate_to: localhost
+  connection: local
+  become: false
+  register: template_files
+
+- name: create destination directory
+  file:
+    path: "{{ tempdir.path }}/{{ item.path | replace(src, '') | dirname }}"
+    state: directory
+  loop: "{{ template_files.files }}"
+  loop_control:
+    label: "{{ item.path | replace(src, '') | regex_replace('^/', '') }}"
+  delegate_to: localhost
+  connection: local
+  become: false
+  changed_when: false
+
+- name: copy template files to temporary directory
+  template:
+    src: "{{ item.path }}"
+    dest: "{{ tempdir.path }}/{{ item.path | replace(src, '') }}"
+    mode: "{{ filemode | default('0644') }}"
+  loop: "{{ template_files.files }}"
+  loop_control:
+    label: "{{ item.path | replace(src, '') | regex_replace('^/', '') }}"
+  delegate_to: localhost
+  connection: local
+  become: false
+  changed_when: false
+
+- name: build exclude list
+  set_fact:
+    rsync_opts: "{{ exclude | map('regex_replace', '^', '--exclude=') }}"
+    chmod: "--chmod=D2{{ dirmode | default('755') }},F{{ filemode | default('644') }}"
+
+- debug: var=rsync_opts
+- debug: var=chmod
+
+- name: add chown to options
+  set_fact:
+    rsync_opts: "{{ rsync_opts + ['--chown={{ owner }}:{{ group }}'] }}"
+  when: owner is defined or group is defined
+
+- name: add permissions to options
+  set_fact:
+    rsync_opts: "{{ rsync_opts + [chmod] }}"
+  when: dirmode is defined or filemode is defined
+
+- name: create dir
+  file:
+    path: "{{ dest }}"
+    state: directory
+    mode: "{{ dirmode | default('0755') }}"
+
+- name: sync template files to destination
+  synchronize:
+    mode: push
+    src: "{{ tempdir.path }}/"
+    dest: "{{ dest }}"
+    use_ssh_args: yes
+    delete: yes
+    dest_port: '{{ ansible_ssh_port }}'
+    recursive: yes
+    rsync_opts: "{{ rsync_opts }}"

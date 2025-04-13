@@ -37,6 +37,17 @@
   roles:
     - haproxy
 
+- name: configure wlan reverse proxy
+  hosts: wlan
+  vars:
+    ansible_user: "{{ credentials.ansible_user }}"
+    ansible_port: "{{ credentials.ansible_port }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - haproxy-internal
+
 - name: configure backupper
   hosts: scan
   vars:
@@ -47,3 +58,14 @@
   become_user: root
   roles:
     - backupper
+
+- name: configure grafana
+  hosts: all
+  vars:
+    ansible_user: "{{ credentials.ansible_user }}"
+    ansible_port: "{{ credentials.ansible_port }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - grafana

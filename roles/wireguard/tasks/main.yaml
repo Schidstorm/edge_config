@@ -26,7 +26,7 @@
 - name: generate home.conf
   template:
     src: home.conf
-    dest: /etc/wireguard/test.conf
+    dest: /etc/wireguard/home.conf
   notify: restart wireguard
 
 - name: replace private key

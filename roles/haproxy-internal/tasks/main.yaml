@@ -1,0 +1,56 @@
+
+- block:  
+  - name: install packages
+    apt:
+      pkg:
+        - haproxy
+        - socat
+
+  - name: create errors directory
+    file:
+      path: /etc/haproxy/errors
+      state: directory
+      owner: haproxy
+      group: haproxy
+      mode: 0755
+  - name: Create temporary template directory
+    ansible.builtin.tempfile:
+      state: directory
+      suffix: error_page
+    register: error_page_tempdir
+    delegate_to: localhost
+    connection: local
+    become: false
+    changed_when: false
+
+  - name: template error pages
+    template:
+      src: error_page.http
+      dest: "{{ error_page_tempdir.path }}/{{ item.key }}.http"
+      # dest: /etc/haproxy/errors/{{ item.key }}.http
+    vars:
+      errorPage: "{{ item.value }}"
+    loop: "{{ errorPages | dict2items }}"
+    delegate_to: localhost
+    connection: local
+    become: false
+    changed_when: false
+
+  - name: sync error_pages files to destination
+    synchronize:
+      mode: push
+      src: "{{ error_page_tempdir.path }}/"
+      dest: /etc/haproxy/errors/
+      use_ssh_args: yes
+      delete: yes
+      dest_port: '{{ ansible_ssh_port }}'
+      recursive: yes
+      rsync_opts:
+        - "--chmod=D2755,F0644"
+        - "--chown=haproxy:haproxy"
+  - name: template haproxy
+    template:
+      src: haproxy.cfg
+      dest: /etc/haproxy/haproxy.cfg
+      mode: 0644
+    notify: restart haproxy

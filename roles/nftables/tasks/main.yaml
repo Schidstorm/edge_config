@@ -6,11 +6,10 @@
 #     state: started
 
 ##### GITHUB IPS #####
-- name: get github meta ips
-  set_fact:
-    github_ips: "{{ lookup('ansible.builtin.url', 'https://api.github.com/meta', split_lines=False) | from_json }}"
-    grafana_logs_ips: "{{ lookup('ansible.builtin.dig', 'src-ips.hosted-logs.grafana.net', 'A') }}"
-    grafana_metrics_ips: "{{ lookup('ansible.builtin.dig', 'src-ips.hosted-metrics.grafana.net', 'A') }}"
+- name: create /etc/nftables.d directory
+  file:
+    path: /etc/nftables.d
+    state: directory
 
 - name: template nftables
   block:
@@ -70,10 +69,6 @@
       name: reload_domains
       job: /usr/local/bin/reload_domains.py
       minute: "*"
-  - name: create /etc/nftables.d directory
-    file:
-      path: /etc/nftables.d
-      state: directory
   - name: install python3 yaml
     package:
       name: python3-yaml
@@ -94,7 +89,5 @@
 
 - name: install nftable monitoring
   include_tasks: install_nftables_monitoring.yaml
-  vars:
-    ansible_become: no
 
   
