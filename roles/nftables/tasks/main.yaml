@@ -37,7 +37,7 @@
     - name: template nftables configuration
       template:
         src: 'nftables.conf'
-        dest: /home/admin/nftables.conf
+        dest: "/home/{{ admin_user }}/nftables.conf"
         mode: 0644
       register: nftables_config
     - name: template toplevel configs

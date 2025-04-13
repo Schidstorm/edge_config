@@ -1,7 +1,5 @@
 rustup_location: "~/.cargo/bin/cargo"
 
-ulogd_udp_json_exporter_listen_port: 10210
-
 dns_lookups:
   APT_IPS:
     - security.debian.org

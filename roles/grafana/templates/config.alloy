@@ -123,11 +123,6 @@ loki.source.file "logs_integrations_integrations_node_exporter_direct_scrape" {
   forward_to = [loki.write.grafana_cloud_loki.receiver]
 }
 
-// prometheus.scrape "local_server_10211" {
-//   targets = ["localhost:10211/metrics"]
-//   forward_to = [prometheus.relabel.integrations_node_exporter.receiver]
-// }
-
 prometheus.scrape "ulogd_udp_json_exporter" {
   targets = [
     {"__address__" = "localhost:{{ ulogd_udp_json_exporter_metrics_port }}", "instance" = constants.hostname, "job" = "ulogd_udp_json_exporter"},

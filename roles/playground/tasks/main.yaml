@@ -2,13 +2,13 @@
     file: "{{ role_path }}/../fasttemplate/tasks/main.yaml"
   vars:
     src: "{{ role_path }}/templates"
-    dest: "/home/admin/test"
+    dest: "/home/{{ admin_user }}/test"
     patterns:
       - "*"
     exclude: []
     dirmode: 755
     filemode: 644
-    owner: admin
-    group: admin
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
     a: a
     b: b
