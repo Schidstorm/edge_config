@@ -1,16 +1,16 @@
-- name: install packages
-  apt:
-    pkg:
-      - ulogd2
-      - ulogd2-json
+- name: stop ulogd2
+  systemd:
+    name: ulogd2
+    state: stopped
+    enabled: no
 
 - name: copy ulogd_udp_json_exporter
   copy:
     src: ulogd_udp_json_exporter_amd64
     dest: /usr/local/bin/ulogd_udp_json_exporter
     mode: 0755
-    owner: 65534
-    group: 65534
+    owner: 0
+    group: 0
   when: ansible_architecture == "x86_64"
   notify: restart ulogd_udp_json_exporter
 
@@ -19,8 +19,8 @@
     src: ulogd_udp_json_exporter_arm64
     dest: /usr/local/bin/ulogd_udp_json_exporter
     mode: 0755
-    owner: 65534
-    group: 65534
+    owner: 0
+    group: 0
   when: ansible_architecture == "aarch64"
   notify: restart ulogd_udp_json_exporter
 
@@ -32,12 +32,3 @@
     owner: root
     group: root
   notify: restart ulogd_udp_json_exporter
-
-- name: copy ulogd2 config
-  template:
-    src: ulogd.conf
-    dest: /etc/ulogd.conf
-    mode: 0600
-    owner: root
-    group: root
-  notify: restart ulogd2

@@ -1,4 +1,0 @@
-chain openai_output {
-    ip daddr $OPENAI_IPS_V4 tcp dport { 443 } accept;
-    ip6 daddr $OPENAI_IPS_V6 tcp dport { 443 } accept;
-}

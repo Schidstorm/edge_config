@@ -1,6 +1,6 @@
 chain reverseproxy_output {
-    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.wlan.address }} } tcp dport {{ reverse_proxy_port }} accept;
+    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.wlan.address }} } tcp dport {{ reverse_proxy_port }} jump jump_accept;
 
     # Scan IPP
-    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.scan.address }} } tcp dport 631 accept
+    ip saddr { {{ wireguard.peers.edge.address }} } ip daddr { {{ wireguard.peers.scan.address }} } tcp dport 631 jump jump_accept
 }

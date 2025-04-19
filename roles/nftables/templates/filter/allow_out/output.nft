@@ -1,0 +1,4 @@
+chain allow_out_output {
+    ip daddr $ALLOW_OUT_IPS_V4 tcp dport { http, https } jump jump_accept;
+    ip6 daddr $ALLOW_OUT_IPS_V6 tcp dport { http, https } jump jump_accept;
+}

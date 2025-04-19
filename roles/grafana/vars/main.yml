@@ -19,14 +19,3 @@ alloy_systemd_override: |
   EnvironmentFile=/etc/default/alloy
 
 alloy_config: '{{ lookup("template", "config.alloy") }}'
-
-keep_metrics:
-  - ulogd_packets_total
-  - ulogd_packets_by_protocol_total
-  - ulogd_packets_by_interface_total
-  - ulogd_packets_by_dest_port_total
-  - ulogd_packets_by_src_ip_total
-  - ulogd_packet_size_bytes_bucket
-  - ulogd_packet_size_bytes_sum
-  - ulogd_packet_size_bytes_count
-  - ulogd_json_parse_errors_total

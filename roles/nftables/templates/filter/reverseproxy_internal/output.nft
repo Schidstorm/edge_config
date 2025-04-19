@@ -1,5 +1,5 @@
 chain reverseproxy_internal_output {
     {% for item in reverse_proxy %}
-    ip daddr { {{ (item.dest | split(":"))[0] }} } tcp dport {{ (item.dest | split(":"))[1] }} accept;
+    ip daddr { {{ (item.dest | split(":"))[0] }} } tcp dport {{ (item.dest | split(":"))[1] }} jump jump_accept;
     {% endfor %}
 }

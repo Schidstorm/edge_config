@@ -1,4 +1,0 @@
-chain golang_output {
-    ip daddr $GOLANG_IPS_V4 tcp dport { 443 } accept;
-    ip6 daddr $GOLANG_IPS_V6 tcp dport { 443 } accept;
-}

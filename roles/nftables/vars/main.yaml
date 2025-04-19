@@ -1,36 +1,7 @@
 rustup_location: "~/.cargo/bin/cargo"
 
 dns_lookups:
-  APT_IPS:
-    - security.debian.org
-    - help.ubuntu.com
-    - archive.ubuntu.com
-    - changelogs.ubuntu.com
-    - archive.raspberrypi.com
-    - deb.debian.org
-  ACME_SH_IPS:
-    - acme.zerossl.com
-    - api.zerossl.com
-    - api.godaddy.com
-
-    # for acme.sh dns-01 test
-    - cloudflare-dns.com
-    - dns.google
-    - doh.pub
-    - dns.alidns.com
-  RUSTUP_IPS:
-    - static.rust-lang.org
-    - sh.rustup.rs
-    - crates.io
-    - index.crates.io
-  VSCODE_IPS:
-    - github.com
-  GOLANG_IPS:
-    - golang.org
-    - proxy.golang.org
-    - storage.googleapis.com
-  OPENAI_IPS:
-    - api.openai.com
+  ALLOW_OUT_IPS: '{{  allow_out_ips | default([]) | flatten }}'
 
   UBUNTU_NTP_IPS:
     - '{{ timeserver | default(ansible_default_ipv4.gateway) }}'

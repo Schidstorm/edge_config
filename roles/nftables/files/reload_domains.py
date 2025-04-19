@@ -71,7 +71,7 @@ def resolve_ip(hostname, version):
         return []
 
 def looks_like_ip_v4(ip):
-    return re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", ip) is not None
+    return re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}(/\d+)?$", ip) is not None
 
 def looks_like_ip_v6(ip):
     return ip.count(":") > 1

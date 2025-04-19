@@ -4,5 +4,5 @@ chain ipp_proxy_input {
         {{ wireguard.peers.edge.address }}
     } ip daddr { 
         {{ wireguard.peers.scan.address }}
-    } tcp dport { 631 } accept
+    } tcp dport { 631 } jump jump_accept
 }

@@ -1,4 +1,4 @@
 
 chain wireguard_input {
-    iif $WAN_INTERFACE udp dport $WG_PORT accept;
+    iif $WAN_INTERFACE udp dport $WG_PORT jump jump_accept;
 }

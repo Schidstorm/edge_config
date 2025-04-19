@@ -6,12 +6,12 @@ chain reverseproxy_input {
         {{ wireguard.peers.pc.address }}
     } ip daddr { 
         {{ wireguard.peers.edge.address }}
-    } tcp dport { http, https } accept;
+    } tcp dport { http, https } jump jump_accept;
 
     # IPP
     ip saddr {
         {{ wireguard.peers.phone.address }}
     } ip daddr { 
         {{ wireguard.peers.edge.address }}
-    } tcp dport { 631 } accept
+    } tcp dport { 631 } jump jump_accept
 }
