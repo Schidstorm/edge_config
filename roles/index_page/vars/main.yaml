@@ -1,0 +1,3 @@
+patch_dir: "/etc/index_page/patches"
+uid: 65534
+gid: 65534

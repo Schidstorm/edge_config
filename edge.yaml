@@ -69,3 +69,25 @@
   become_user: root
   roles:
     - grafana
+
+- name: install podman
+  hosts: podman
+  vars:
+    ansible_user: "{{ credentials.ansible_user }}"
+    ansible_port: "{{ credentials.ansible_port }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - podman
+
+- name: index_page
+  hosts: scan
+  vars:
+    ansible_user: "{{ credentials.ansible_user }}"
+    ansible_port: "{{ credentials.ansible_port }}"
+  become: yes
+  become_method: sudo
+  become_user: root
+  roles:
+    - index_page

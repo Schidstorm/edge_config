@@ -1,0 +1,9 @@
+chain podman_input {
+    ip saddr {
+        {{ podman_network }},
+        {{ ansible_all_ipv4_addresses | join(',') }}
+    }
+    ip daddr {
+        {{ podman_network }}
+    } jump jump_accept;
+}

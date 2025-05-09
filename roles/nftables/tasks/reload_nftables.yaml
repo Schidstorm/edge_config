@@ -17,3 +17,8 @@
       service:
         name: nftables
         state: restarted
+
+    - name: reload podman network
+      command: "podman network reload -a"
+      changed_when: false
+      when: "'podman' in group_names"

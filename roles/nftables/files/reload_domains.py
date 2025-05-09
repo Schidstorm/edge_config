@@ -159,6 +159,12 @@ def reload_nftables():
         log("Reloading nftables")
         os.system("nft -f /etc/nftables.conf")
 
+        # if podman is installed, reload the podman network
+        if os.path.exists("/usr/bin/podman"):
+            log("Reloading podman network")
+            os.system("podman network reload -a")
+            
+
 def parse_args():
     log("Parsing arguments")
     parser = argparse.ArgumentParser(description='Reload nftables domains')

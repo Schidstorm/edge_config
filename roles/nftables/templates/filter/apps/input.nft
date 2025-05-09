@@ -1,0 +1,8 @@
+chain apps_input {
+    # if reverse_proxy.dest split : 0 is own ip. sip wlan dip this ip tcp dport split : 1 allow
+    {% for item in reverse_proxy %}
+    {% if item.dest.split(':')[0] in ansible_all_ipv4_addresses %}
+    ip saddr { {{ wireguard.peers.wlan.address }} } ip daddr { {{ item.dest.split(':')[0] }} } tcp dport {{ item.dest.split(':')[1] }} jump jump_accept;
+    {% endif %}
+    {% endfor %}
+}

@@ -1,0 +1,44 @@
+- name: configure apps
+  file:
+    path: "{{ patch_dir }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ uid }}"
+    group: "{{ gid }}"
+  loop:
+    - "{{ patch_dir }}"
+    - "{{ patch_dir }}/vars"
+
+- name: copy patch files
+  template:
+    src: "{{ item }}"
+    dest: "{{ patch_dir }}/{{ item }}"
+    owner: "{{ uid }}"
+    group: "{{ gid }}"
+    mode: '0644'
+  loop:
+    - vars/common.yaml
+    - vars/links.yaml
+
+- name: stop and remove
+  containers.podman.podman_container:
+    name: "index_page"
+    state: absent
+
+- name: deploy index_page
+  containers.podman.podman_container:
+    name: "index_page"
+    image: "docker.io/necromant/index_page:0.1.3"
+    state: started
+    restart_policy: unless-stopped
+    detach: true
+    ports: 
+      - '{{ index_page_port }}:8080'
+    volumes: 
+      - '{{ patch_dir }}:/patches:ro'
+    env: 
+      LOG_LEVEL: 'warn'
+      PATCH_DIR: '/patches'
+      DEV: 'false'
+    pull: always
+    read_only: true
